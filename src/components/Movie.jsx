@@ -1,13 +1,45 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { db } from "../firebase";
+import { UserAuth } from "../context/AuthContext";
+import { doc, arrayUnion, setDoc, updateDoc, getDoc } from "firebase/firestore";
 
-const Movie = ({item, id}) => {
-    const [like, setLike] = useState(false);
+const Movie = ({ item }) => {
+  const [like, setLike] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const { user } = UserAuth();
+
+  const movieId = doc(db, "users", `${user?.email}`);
+
+  const saveShow = async () => {
+    if (user?.email) {
+      setLike(!like);
+      setSaved(true);
+
+      const movieDoc = await getDoc(movieId);
+
+      // if (!movieDoc.exists()) {
+      //   await setDoc(movieId, { savedShows: [] });
+      // }
+
+      await updateDoc(
+        movieId,
+        {
+          savedShows: arrayUnion({
+            id: item.id,
+            title: item.title,
+            img: item.backdrop_path,
+          }),
+        },
+        { merge: true }
+      );
+    } else {
+      alert("Please log in to save a movie!");
+    }
+  };
+
   return (
-    <div
-      key={id}
-      className="w-[160px] sm:w-[200px] md:w-[240px] lg:w-[280px] inline-block cursor-pointer relative p-2"
-    >
+    <div className="w-[160px] sm:w-[200px] md:w-[240px] lg:w-[280px] inline-block cursor-pointer relative p-2">
       <img
         className="w-full h-auto block"
         src={`https://image.tmdb.org/t/p/w500/${item?.backdrop_path}`}
@@ -17,7 +49,7 @@ const Movie = ({item, id}) => {
         <p className="white-space-normal text-xs md:text-sm font-bold flex justify-center items-center h-full text-center mx-5 ">
           {item?.title}
         </p>
-        <p className="">
+        <p onClick={saveShow} className="">
           {like ? (
             <FaHeart className="absolute top-4 left-4 text-gray-300" />
           ) : (
