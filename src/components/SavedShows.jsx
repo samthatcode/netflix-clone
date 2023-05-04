@@ -27,11 +27,11 @@ const SavedShows = () => {
 
   const deleteShow = async (passedId) => {
     try {
-      const docRef = doc(db, "users", `${user?.email}`);
-      const docSnap = await getDoc(docRef);
+      const movieRef = doc(db, "users", `${user?.email}`);
+      const docSnap = await getDoc(movieRef);
       const savedShows = docSnap.data()?.savedShows || [];
       const result = savedShows.filter((item) => item.id !== passedId);
-      await updateDoc(docRef, { savedShows: result });
+      await updateDoc(movieRef, { savedShows: result });
     } catch (e) {
       console.log(e.message);
     }
@@ -69,7 +69,7 @@ const SavedShows = () => {
                     onClick={() => deleteShow(item.id)}
                     className="absolute test-gray-300 top-4 right-4 cursor-pointer bg-black"
                   >
-                    <AiOutlineClose  size={25} />
+                    <AiOutlineClose size={25} />
                   </p>
                 </div>
               </div>
